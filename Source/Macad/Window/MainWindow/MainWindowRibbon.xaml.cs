@@ -1,10 +1,13 @@
-﻿using System.Globalization;
+﻿﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using Fluent;
+using Macad.Core.Plugin;
 using Macad.Presentation;
 
 namespace Macad.Window;
@@ -18,6 +21,60 @@ public partial class MainWindowRibbon : UserControl
     {
         InitializeComponent();
         RibbonLocalization.Current.Culture = CultureInfo.InvariantCulture;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Collects Ribbon group contributions from all loaded <see cref="IPluginRibbonContributor"/>
+    /// plugins and appends them to the matching Ribbon tabs.
+    /// Call this after <see cref="PluginManager.LoadPlugins"/> and before showing the main window.
+    /// </summary>
+    public void ApplyPluginContributions()
+    {
+        var contributors = PluginManager.GetPlugins<IPluginRibbonContributor>();
+        if (!contributors.Any())
+        {
+            PluginsTab.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        bool hasPlugins = false;
+        foreach (var contributor in contributors)
+        {
+            var groups = contributor.GetRibbonGroups("PLUGINS");
+            if (groups != null)
+            {
+                foreach (var groupModel in groups)
+                {
+                    if (groupModel.Control is RibbonGroupBox groupBox)
+                    {
+                        PluginsTab.Groups.Add(groupBox);
+                        hasPlugins = true;
+                    }
+                }
+            }
+        }
+
+        if (!hasPlugins)
+        {
+            PluginsTab.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    void _ContextualGroup_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if ((!(bool)e.OldValue) && (bool)e.NewValue)
+        {
+            var group = sender as RibbonContextualTabGroup;
+            var tabItem = group?.Items.FirstOrDefault();
+            if (tabItem != null)
+            {
+                Dispatcher.BeginInvoke(() => tabItem.IsSelected = true);
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------
