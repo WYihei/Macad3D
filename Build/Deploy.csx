@@ -104,6 +104,17 @@ static List<FileSet> FileSets = new List<FileSet> {
             }
         }
     },
+    {
+        new FileSet {
+            Name = "plugins",
+            SourceDir = @"Bin\Publish\Plugins",
+            TargetDir = @"{app}\Plugins",
+            Flags = "ignoreversion",
+            Files = new List<string> {
+                @"**\*.*",
+            }
+        }
+    },
 };
 
 /***************************************************************/
