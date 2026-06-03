@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              Style="{StaticResource {x:Type mmp:Dialog}}"
              DataContext="{Binding RelativeSource={RelativeSource Self}}"        
-             Title="About Macad|3D"
+             Title="About RoboticplusCAD"
              Height="Auto" Width="Auto"
              WindowStartupLocation="CenterOwner"
              AutomationProperties.AutomationId="AboutDialog">
@@ -32,12 +32,12 @@
                Margin="0,5,0,0"/>
 
         <StackPanel Margin="20,0">
-            <TextBlock FontWeight="Bold" FontSize="24">Macad|3D</TextBlock>
+            <TextBlock FontWeight="Bold" FontSize="24">RoboticplusCAD</TextBlock>
             <TextBlock Text="{Binding Version, StringFormat={}Version {0}}"/>
             <TextBlock Text="{Binding Copyright}" />
             <TextBlock>
                 <Hyperlink Click="_Website_Click">
-                    https://macad3d.net
+                    https://www.roboticplus.com
                 </Hyperlink>
             </TextBlock>
             <TextBlock Margin="0,20,0,0" Text="{Binding OcctVersion, StringFormat={}Uses Open CASCADE Technology {0}}" />

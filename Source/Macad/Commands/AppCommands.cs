@@ -28,7 +28,7 @@ public static class AppCommands
     internal static RelayCommand InitApplication { get; } = new(
         () =>
         {
-            Messages.Info("Welcome to Macad|3D.");
+            Messages.Info("Welcome to RoboticplusCAD.");
 
             DocumentCommands.CreateNewModel.Execute();
 
@@ -143,7 +143,7 @@ public static class AppCommands
             }.ShowDialog();
         })
     {
-        Header = () => "About Macad|3D...",
+        Header = () => "About RoboticplusCAD...",
         Description = () => "Shows version and license information.",
     };
 

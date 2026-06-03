@@ -22,7 +22,7 @@
                      >
 
     <Window.Title>
-        <Binding Path="Context.Document.FilePath" Converter="{mmp:ExtractFileNameNoExtensionConverter}" StringFormat="{}{0} - Macad|3D" />
+        <Binding Path="Context.Document.FilePath" Converter="{mmp:ExtractFileNameNoExtensionConverter}" StringFormat="{}{0} - RoboticplusCAD" />
     </Window.Title>
     
     <Window.CommandBindings>
