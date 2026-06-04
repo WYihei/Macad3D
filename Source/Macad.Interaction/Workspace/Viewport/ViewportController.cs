@@ -240,7 +240,7 @@ public sealed class ViewportController : BaseObject, IDisposable
         InteractiveContext.Current.Parameters.Get<ViewportParameterSet>().ParameterChanged += _ParameterChanged;
         InteractiveContext.Current.ActiveViewportChanged += _Context_ActiveViewportChanged;
 
-        V3dView.SetBgGradientColors(new Color(0.624f, 0.714f, 0.804f).ToQuantityColor(), new Color(0.424f, 0.482f, 0.545f).ToQuantityColor(), Aspect_GradientFillMethod.VER, false);
+        V3dView.SetBgGradientColors(new Color(0.9f, 0.9f, 0.9f).ToQuantityColor(), new Color(0.7f, 0.7f, 0.7f).ToQuantityColor(), Aspect_GradientFillMethod.VER, false);
 
         var renderParams = V3dView.ChangeRenderingParams();
         renderParams.NbMsaaSamples = parameterSet.EnableAntialiasing ? 4 : 0;
