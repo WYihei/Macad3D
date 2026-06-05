@@ -43,7 +43,7 @@ public partial class App : Application
         }
 
         // Set AppUserModelID for Shell-Features like JumpList, Taskbar-Grouping
-        Win32Api.SetCurrentProcessExplicitAppUserModelID("Macad.1");
+        Win32Api.SetCurrentProcessExplicitAppUserModelID("RoboticplusCAD.1");
 
         CreateInstanceMutexes();
 

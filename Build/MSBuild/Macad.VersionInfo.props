@@ -1,9 +1,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Product>Macad|3D</Product>
+    <Product>RoboticplusCAD</Product>
     <Version>5.0</Version>
     <VersionSuffix>develop</VersionSuffix>
-    <Company>Tobias Schachte</Company>
+    <Company>Roboticplus</Company>
     <Copyright>Copyright © 2015-2026 $(Company)</Copyright>
 
     <DaysSinceEpoch>$([System.Convert]::ToInt32($([System.DateTime]::Now.Subtract($([System.DateTime]::new(2015, 8, 29))).TotalDays)))</DaysSinceEpoch>

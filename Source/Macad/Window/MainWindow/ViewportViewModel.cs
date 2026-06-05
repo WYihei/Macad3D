@@ -59,7 +59,7 @@ public class ViewportViewModel : INotifyPropertyChanged
     void _VersionCheck_UpdateAvailable(object sender, VersionCheckInfo info)
     {
         _UpdateInfo = info;
-        UpdateMessage = "A new version of Macad|3D is available for download.";
+        UpdateMessage = "A new version of RoboticplusCAD is available for download.";
         RaisePropertyChanged(nameof(UpdateMessage));
     }
 

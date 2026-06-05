@@ -12,7 +12,7 @@
                      Background="{StaticResource Macad.Brushes.Popup.Background}"
                      BorderBrush="{StaticResource Macad.Brushes.Popup.Border}" 
                      BorderThickness="1"
-                     Title="Welcome to Macad|3D" 
+                     Title="Welcome to RoboticplusCAD" 
                      ShowInTaskbar="False" 
                      Icon="/Macad.Resources;component/Controls/SplashScreen/SplashScreen96.png"
                      AutomationProperties.AutomationId="WelcomeDialog">
@@ -37,7 +37,7 @@
                    Source="{mmp:IconResource App-MainLogo}"
                    Height="64" Width="64"/>
             <StackPanel>
-                <TextBlock Text="Welcome to Macad|3D." 
+                <TextBlock Text="Welcome to RoboticplusCAD." 
                            FontSize="20"
                            FontWeight="SemiBold"
                            Foreground="{StaticResource Macad.Brushes.Text}" />
