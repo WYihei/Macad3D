@@ -264,6 +264,28 @@ public sealed class Extrude : ModifierBase
             return base.MakeInternal(MakeFlags.None);
         }
 
+        // Check if the operand has solids; if not (e.g. imported shell/single face), fall back to direct prism
+        if (solid.Solids().Count == 0)
+        {
+            var vector = direction.ToVec().Multiplied(Depth);
+            var directPrism = new BRepPrimAPI_MakePrism(face, vector, false);
+            if (!directPrism.IsDone())
+            {
+                Messages.Error("Failed extruding the selected face with this parameters.");
+                return false;
+            }
+
+            var directShape = directPrism.Shape();
+            if (directShape.Solids().Count == 0)
+            {
+                Messages.Error("Failed extruding the selected face with this parameters.");
+                return false;
+            }
+
+            BRep = directShape;
+            return true;
+        }
+
         // Do it!
         var makePrism = new BRepFeat_MakePrism(solid, face, face, direction, Depth > 0 ? 1 : 0, false);
         makePrism.Perform(Depth);
