@@ -60,7 +60,7 @@ public abstract class BooleanBase : ModifierBase
             algo.SimplifyResult(true, true);
         }
 
-        var resultShape = algo.Shape();
+        var resultShape = GetResultBRep(algo.Shape());
         if (resultShape == null)
         {
             return false;
@@ -82,6 +82,14 @@ public abstract class BooleanBase : ModifierBase
     //--------------------------------------------------------------------------------------------------
 
     protected abstract void SetTools(BRepAlgoAPI_BuilderAlgo algo, TopTools_ListOfShape tools);
+
+    //--------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Extracts the result BRep from the algorithm's output shape.
+    /// Override to customize result processing (e.g., extracting individual solids from a compound).
+    /// </summary>
+    protected virtual TopoDS_Shape GetResultBRep(TopoDS_Shape algoResult) => algoResult;
 
     //--------------------------------------------------------------------------------------------------
 

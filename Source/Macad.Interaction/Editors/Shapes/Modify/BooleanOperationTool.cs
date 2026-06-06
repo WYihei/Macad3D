@@ -173,7 +173,22 @@ public class BooleanOperationTool : Tool
                 break;
 
             case Operation.Split:
-                boolOpShape = SplitSolid.Create(body, operands);
+                var splitSolid = SplitSolid.Create(body, operands);
+                boolOpShape = splitSolid;
+
+                // Force shape computation to populate AdditionalSolids
+                splitSolid.GetBRep();
+
+                // Create new bodies for additional solids produced by the split
+                if (splitSolid.AdditionalSolids.Count > 0)
+                {
+                    foreach (var additionalSolid in splitSolid.AdditionalSolids)
+                    {
+                        var solidShape = Solid.Create(additionalSolid);
+                        var newBody = Body.Create(solidShape);
+                        InteractiveContext.Current.Document.Add(newBody);
+                    }
+                }
                 break;
         }
 
