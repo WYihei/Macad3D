@@ -41,9 +41,16 @@ public sealed class BooleanFuse : BooleanBase
 
     //--------------------------------------------------------------------------------------------------
 
-    protected override BRepAlgoAPI_BooleanOperation CreateAlgoApi()
+    protected override BRepAlgoAPI_BuilderAlgo CreateAlgoApi()
     {
         return new BRepAlgoAPI_Fuse();
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    protected override void SetTools(BRepAlgoAPI_BuilderAlgo algo, TopTools_ListOfShape tools)
+    {
+        ((BRepAlgoAPI_BooleanOperation)algo).SetTools(tools);
     }
 
     //--------------------------------------------------------------------------------------------------

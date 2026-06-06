@@ -119,9 +119,21 @@ public static class ModelCommands
         {
             InteractiveContext.Current.WorkspaceController.StartTool(new BooleanOperationTool(op));
         },
-        CanExecuteOnMultiSolid)
+        (op) =>
+        {
+            if (op == BooleanOperationTool.Operation.Split)
+                return CanExecuteOnSingleSolid();
+            return CanExecuteOnMultiSolid();
+        })
     {
-        Header = (op) => op.ToString(),
+        Header = (op) => op switch
+        {
+            BooleanOperationTool.Operation.Cut => "Cut",
+            BooleanOperationTool.Operation.Fuse => "Fuse",
+            BooleanOperationTool.Operation.Common => "Common",
+            BooleanOperationTool.Operation.Split => "Split",
+            _ => op.ToString()
+        },
         Icon = (op) => $"Boolean-{op.ToString()}",
         Description = (op) =>
         {
@@ -133,6 +145,8 @@ public static class ModelCommands
                     return "Fuses the solid shapes of one ore more bodies.";
                 case BooleanOperationTool.Operation.Common:
                     return "Combines the solid shape of two or more bodies by calculating the common part of all shapes.";
+                case BooleanOperationTool.Operation.Split:
+                    return "Splits a solid shape by using another body's shape (shell, face, or solid) as the splitting tool.";
                 default:
                     return "Boolean operation of two or more bodies.";
             }
@@ -147,6 +161,8 @@ public static class ModelCommands
                     return "dff138bf-06a6-485c-a94d-890ef71a1372";
                 case BooleanOperationTool.Operation.Common:
                     return "79be5f3d-4bf0-4c76-9bc6-50428e6ed621";
+                case BooleanOperationTool.Operation.Split:
+                    return "";
                 default:
                     return "";
             }

@@ -20,6 +20,9 @@ public class Command : DependencyObject
     public static readonly DependencyProperty ActionProperty = DependencyProperty.RegisterAttached(
         "Action", typeof(IActionCommand), typeof(Command), new PropertyMetadata(default(IActionCommand), CommandChangedCallback));
 
+    static readonly DependencyProperty CommandParameterListenerProperty = DependencyProperty.RegisterAttached(
+        "CommandParameterListener", typeof(object), typeof(Command), new PropertyMetadata(null, CommandParameterChangedCallback));
+
     public static IActionCommand GetAction(DependencyObject d)
     {
         return (IActionCommand)d.GetValue(ActionProperty);
@@ -34,11 +37,36 @@ public class Command : DependencyObject
 
     static void CommandChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        BindingBase binding;
-
         var cmd = e.NewValue as IActionCommand;
         if (d == null || cmd == null)
             return;
+
+        // Bind a listener to CommandParameter changes so we can re-apply header/icon
+        if (d is ICommandSource)
+        {
+            var binding = new Binding("CommandParameter") { Source = d };
+            BindingOperations.SetBinding(d, CommandParameterListenerProperty, binding);
+        }
+
+        ApplyCommandProperties(d, cmd);
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    static void CommandParameterChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var cmd = GetAction(d);
+        if (cmd == null)
+            return;
+
+        ApplyCommandProperties(d, cmd);
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    static void ApplyCommandProperties(DependencyObject d, IActionCommand cmd)
+    {
+        BindingBase binding;
 
         object param = (d as ICommandSource)?.CommandParameter ?? null;
 

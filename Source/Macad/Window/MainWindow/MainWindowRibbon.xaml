@@ -601,6 +601,10 @@
                     mmp:Command.Action="{x:Static mmi:ModelCommands.CreateBoolean}"
                     AutomationProperties.AutomationId="CreateBooleanCommon"
                     CommandParameter="Common" />
+                <Fluent:ToggleButton
+                    mmp:Command.Action="{x:Static mmi:ModelCommands.CreateBoolean}"
+                    AutomationProperties.AutomationId="CreateBooleanSplit"
+                    CommandParameter="Split" />
                 <Fluent:Button mmp:Command.Action="{x:Static mmi:ModelCommands.CreateCrossSection}" AutomationProperties.AutomationId="CreateCrossSection" />
             </Fluent:RibbonGroupBox>
 

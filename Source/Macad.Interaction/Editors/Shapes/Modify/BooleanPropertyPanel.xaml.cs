@@ -33,6 +33,7 @@ public partial class BooleanPropertyPanel : PropertyPanel
                 BooleanCommon _ => BooleanOperationTool.Operation.Common,
                 BooleanCut _ => BooleanOperationTool.Operation.Cut,
                 BooleanFuse _ => BooleanOperationTool.Operation.Fuse,
+                SplitSolid _ => BooleanOperationTool.Operation.Split,
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

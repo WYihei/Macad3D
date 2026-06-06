@@ -11,7 +11,8 @@ public class BooleanOperationTool : Tool
     {
         Cut,
         Fuse,
-        Common
+        Common,
+        Split
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -34,6 +35,9 @@ public class BooleanOperationTool : Tool
                 break;
             case Operation.Common:
                 Id = "BooleanCommonTool";
+                break;
+            case Operation.Split:
+                Id = "BooleanSplitTool";
                 break;
         }
     }
@@ -64,7 +68,10 @@ public class BooleanOperationTool : Tool
         else
         {
             var toolAction = new SelectEntityAction<Body>(this);
-            toolAction.SetFilter(body => body.Shape?.ShapeType == ShapeType.Solid);
+            if (_Operation == Operation.Split)
+                toolAction.SetFilter(body => body.Shape != null);
+            else
+                toolAction.SetFilter(body => body.Shape?.ShapeType == ShapeType.Solid);
             if (!StartAction(toolAction))
             {
                 return false;
@@ -96,6 +103,10 @@ public class BooleanOperationTool : Tool
 
             case Operation.Common:
                 text += "common operation";
+                break;
+
+            case Operation.Split:
+                text += "split operation";
                 break;
         }
 
@@ -159,6 +170,10 @@ public class BooleanOperationTool : Tool
 
             case Operation.Fuse:
                 boolOpShape = BooleanFuse.Create(body, operands);
+                break;
+
+            case Operation.Split:
+                boolOpShape = SplitSolid.Create(body, operands);
                 break;
         }
 

@@ -15,9 +15,16 @@ public sealed class BooleanCut : BooleanBase
 
     //--------------------------------------------------------------------------------------------------
 
-    protected override BRepAlgoAPI_BooleanOperation CreateAlgoApi()
+    protected override BRepAlgoAPI_BuilderAlgo CreateAlgoApi()
     {
         return new BRepAlgoAPI_Cut();
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    protected override void SetTools(BRepAlgoAPI_BuilderAlgo algo, TopTools_ListOfShape tools)
+    {
+        ((BRepAlgoAPI_BooleanOperation)algo).SetTools(tools);
     }
 
     //--------------------------------------------------------------------------------------------------

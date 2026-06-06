@@ -18,5 +18,6 @@ public sealed class BooleanEditor : Editor<BooleanBase>
         RegisterEditor<BooleanCommon, BooleanEditor>();
         RegisterEditor<BooleanCut, BooleanEditor>();
         RegisterEditor<BooleanFuse, BooleanEditor>();
+        RegisterEditor<SplitSolid, BooleanEditor>();
     }
 }

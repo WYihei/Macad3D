@@ -47,7 +47,7 @@ public abstract class BooleanBase : ModifierBase
 
         var algo = CreateAlgoApi();
         algo.SetArguments(shapeListArgs);
-        algo.SetTools(shapeListTools);
+        SetTools(algo, shapeListTools);
         algo.Build();
         if (!algo.IsDone())
         {
@@ -77,7 +77,11 @@ public abstract class BooleanBase : ModifierBase
 
     //--------------------------------------------------------------------------------------------------
 
-    protected abstract BRepAlgoAPI_BooleanOperation CreateAlgoApi();
+    protected abstract BRepAlgoAPI_BuilderAlgo CreateAlgoApi();
+
+    //--------------------------------------------------------------------------------------------------
+
+    protected abstract void SetTools(BRepAlgoAPI_BuilderAlgo algo, TopTools_ListOfShape tools);
 
     //--------------------------------------------------------------------------------------------------
 
