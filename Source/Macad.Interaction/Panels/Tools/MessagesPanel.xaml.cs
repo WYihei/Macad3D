@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Globalization;
-using System.Windows;
+using System.Collections.Specialized;
+using System.Text;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
-using Macad.Common;
 using Macad.Core;
 using Macad.Core.Shapes;
 using Macad.Core.Topology;
-using Macad.Presentation;
 
 namespace Macad.Interaction.Panels;
 
@@ -18,96 +14,58 @@ public partial class MessagesPanel : UserControl
     {
         InitializeComponent();
 
-        CoreContext.Current.MessageHandler.MessageItems.CollectionChanged += MessageItems_CollectionChanged;
+        var handler = CoreContext.Current.MessageHandler;
+        handler.MessageItems.CollectionChanged += MessageItems_CollectionChanged;
     }
 
     //--------------------------------------------------------------------------------------------------
 
-    void MessageItems_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    void MessageItems_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        if (VisualTreeHelper.GetChildrenCount(listView) > 0)
+        if (e.Action == NotifyCollectionChangedAction.Add)
         {
-            Border border = VisualTreeHelper.GetChild(listView, 0) as Border;
-            if (border == null)
-                return;
-
-            ScrollViewer scrollViewer = (ScrollViewer)VisualTreeHelper.GetChild(border, 0);
-            scrollViewer.ScrollToBottom();
+            var sb = new StringBuilder();
+            foreach (MessageItem item in e.NewItems)
+            {
+                FormatMessage(sb, item);
+            }
+            textBox.AppendText(sb.ToString());
         }
+        else
+        {
+            // Reset or other action: rebuild entire text
+            var sb = new StringBuilder();
+            foreach (var item in CoreContext.Current.MessageHandler.MessageItems)
+            {
+                FormatMessage(sb, item);
+            }
+            textBox.Text = sb.ToString();
+        }
+
+        textBox.ScrollToEnd();
     }
 
     //--------------------------------------------------------------------------------------------------
-        
-    #region Converter
 
-    public class EntityToNameConverter : IValueConverter
+    static void FormatMessage(StringBuilder sb, MessageItem message)
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        string senderName = "";
+        if (message.Sender != null && message.Sender.TryGetTarget(out Entity entity))
         {
-            if (value is WeakReference<Entity> weakReference && weakReference.TryGetTarget(out Entity entity))
+            if (entity is Shape shape && shape.Body != null)
             {
-                switch (entity)
-                {
-                    case Shape shape:
-                        if (shape.Body != null)
-                        {
-                            return $"[{shape.Body.Name}::{(shape.Name.IsNullOrEmpty() ? shape.TypeName : shape.Name)}]  ";
-                        }
-                        break;
-                }
+                senderName = $"[{shape.Body.Name}] ";
             }
-
-            return "";
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        sb.Append($"[{message.TimeStamp:HH:mm:ss}] [{message.Severity}] {senderName}{message.Text}\n");
+
+        if (message.Explanation is { Length: > 0 })
         {
-            throw new NotImplementedException();
+            foreach (var line in message.Explanation)
+            {
+                sb.Append($"  {line}\n");
+            }
         }
     }
-
-    public static EntityToNameConverter EntityToName = new();
-
-    //--------------------------------------------------------------------------------------------------
-
-    #endregion
-
-    #region Commands
-
-    public static RelayCommand<WeakReference<Entity>> SelectEntityCommand { get; } = new (
-        (weakReference) =>
-        {
-            if (weakReference.TryGetTarget(out Entity entity))
-            {
-                switch (entity)
-                {
-                    case Shape shape:
-                        if (shape.Body != null)
-                        {
-                            InteractiveContext.Current.WorkspaceController.Selection.SelectEntity(shape.Body);
-                        }
-                        break;
-                }
-            }
-        },
-        (weakReference) => weakReference != null && weakReference.TryGetTarget(out Entity entity) && entity is Shape
-    );
-
-    //--------------------------------------------------------------------------------------------------
-
-
-    public static RelayCommand<FrameworkElement> ToggleVisibilityCommand { get; } = new (
-        (element) =>
-        {
-            if (element != null)
-            {
-                element.Visibility = element.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
-            }
-        }
-    );
-
-    //--------------------------------------------------------------------------------------------------
-
-
-    #endregion
 }
