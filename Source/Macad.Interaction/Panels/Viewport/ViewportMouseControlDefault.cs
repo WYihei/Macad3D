@@ -10,11 +10,18 @@ internal class ViewportMouseControlDefault : IViewportMouseControl
     ViewportController.MouseMoveMode _CurrentMouseMoveMode;
     Point _MouseDownPos;
     bool _LeftButtonDown;
+    bool _MiddleButtonMoved;
 
     //--------------------------------------------------------------------------------------------------
 
     public void MouseMove(ViewportController viewport, Point pos, MouseButtons pressedButtons, ModifierKeys modifierKeys)
     {
+        // Track whether the middle button is being dragged (vs. a simple click)
+        if (pressedButtons.HasFlag(MouseButtons.Middle) && _CurrentMouseMoveMode != ViewportController.MouseMoveMode.None)
+        {
+            _MiddleButtonMoved = true;
+        }
+
         if (_CurrentViewport != null && pressedButtons != MouseButtons.None)
         {
             // Transform position to current viewport, so that any tool and viewport movement is consistent when moving across viewports
@@ -86,6 +93,11 @@ internal class ViewportMouseControlDefault : IViewportMouseControl
         if (viewport == null)
             return;
 
+        if (changedButtons.HasFlag(MouseButtons.Middle))
+        {
+            _MiddleButtonMoved = false;
+        }
+
         if (changedButtons.HasFlag(MouseButtons.Left)
             && _CurrentMouseMoveMode == ViewportController.MouseMoveMode.None)
         {
@@ -114,6 +126,12 @@ internal class ViewportMouseControlDefault : IViewportMouseControl
         viewport = _CurrentViewport ?? viewport;
         if (viewport == null)
             return;
+
+        // Middle-click (without drag) sets the rotation center
+        if (changedButtons.HasFlag(MouseButtons.Middle) && !_MiddleButtonMoved)
+        {
+            viewport.SetRotationCenter(pos);
+        }
 
         if (changedButtons.HasFlag(MouseButtons.Left))
         {

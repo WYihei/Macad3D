@@ -1,5 +1,6 @@
 ﻿using Macad.Common;
 using Macad.Core;
+using Macad.Core.Topology;
 using Macad.Occt;
 using Macad.Occt.Extensions;
 using Macad.Occt.Helper;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Input;
 using Color = Macad.Common.Color;
 using Point = System.Windows.Point;
@@ -179,6 +181,8 @@ public sealed class ViewportController : BaseObject, IDisposable
     Point _StartedMousePosition;
     Point _LastMousePosition;
     Pnt? _GravityPoint;
+    Pnt? _UserRotationPivot;
+    Visual.Marker _RotationCenterMarker;
     bool _LockedToPlane;
     bool _ShowTrihedron;
     bool _ShowViewCube;
@@ -275,6 +279,9 @@ public sealed class ViewportController : BaseObject, IDisposable
 
         _AisxOutlinePP?.Dispose();
         _AisxOutlinePP = null;
+
+        _RotationCenterMarker?.Remove();
+        _RotationCenterMarker = null;
 
         _AisViewCube?.ResetViewAnimation();
         _AisViewCube?.Dispose();
@@ -602,7 +609,9 @@ public sealed class ViewportController : BaseObject, IDisposable
 
             case MouseMoveMode.Rotating:
                 _CurrentMouseMoveMode = MouseMoveMode.Rotating;
-                _GravityPoint ??= V3dView.GravityPoint();
+                _GravityPoint ??= _UserRotationPivot ?? V3dView.GravityPoint();
+                if (_UserRotationPivot.HasValue)
+                    _UpdateRotationCenterMarker(_UserRotationPivot.Value);
                 break;
 
             case MouseMoveMode.Twisting:
@@ -618,10 +627,73 @@ public sealed class ViewportController : BaseObject, IDisposable
 
     //--------------------------------------------------------------------------------------------------
 
+    /// <summary>
+    /// Picks the nearest geometry surface point under the given screen position and
+    /// sets it as the persistent rotation pivot (similar to Blender middle-click orbit).
+    /// The pivot remains active until the user middle-clicks again to set a new one.
+    /// </summary>
+    public void SetRotationCenter(Point screenPos)
+    {
+        if (!IsVisible)
+            return;
+
+        int sx = (int)screenPos.X;
+        int sy = (int)screenPos.Y;
+
+        // Use OCCT's built-in PickPoint which reads the depth buffer
+        // to find the actual 3D surface point under the cursor (Blender-style).
+        var pickedPnt = new Pnt();
+        var viewController = new AIS_ViewController();
+        bool found = viewController.PickPoint(
+            ref pickedPnt,
+            WorkspaceController.AisContext,
+            V3dView,
+            new Graphic3d_Vec2i(sx, sy),
+            true);
+
+        if (found)
+        {
+            _UserRotationPivot = pickedPnt;
+            return;
+        }
+
+        // Fallback: project to view plane through current target point
+        if (ScreenToPoint(sx, sy, out var fallbackPnt))
+        {
+            _UserRotationPivot = fallbackPnt;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    void _UpdateRotationCenterMarker(Pnt position)
+    {
+        if (_RotationCenterMarker == null)
+        {
+            _RotationCenterMarker = new Visual.Marker(
+                WorkspaceController,
+                Visual.Marker.Styles.Bitmap | Visual.Marker.Styles.Topmost,
+                Visual.Marker.BallImage);
+        }
+        _RotationCenterMarker.Color = Colors.Marker;
+        _RotationCenterMarker.Set(position);
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    public void RemoveRotationCenterMarker()
+    {
+        _RotationCenterMarker?.Remove();
+        _RotationCenterMarker = null;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
     void _ResetMouseMoveMode()
     {
         _GravityPoint = null;
         _CurrentMouseMoveMode = MouseMoveMode.None;
+        RemoveRotationCenterMarker();
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -652,7 +724,7 @@ public sealed class ViewportController : BaseObject, IDisposable
                 pitch = angleLeft;
             }
                 
-            var gravityPoint = _GravityPoint ?? V3dView.GravityPoint();
+            var gravityPoint = _GravityPoint ?? _UserRotationPivot ?? V3dView.GravityPoint();
             Trsf trsf1 = new Trsf(new Ax1(gravityPoint, Viewport.GetRightDirection()), pitch);
             V3dView.Camera().Transform(trsf1);
             Trsf trsf2 = new Trsf(new Ax1(gravityPoint, Dir.DZ), yaw);
